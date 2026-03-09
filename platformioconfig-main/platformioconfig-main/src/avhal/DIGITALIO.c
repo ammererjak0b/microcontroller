@@ -11,3 +11,8 @@ void IO_SetAllPORTAToHigh() {
 void IO_SetAllPORTAToLow() {
     PORTA = 0x00;
 }
+
+void IO_OutputRegisterToLEDs(uint8_t value) {
+    DDRA = 0xFF;
+    PORTA = value;
+}
