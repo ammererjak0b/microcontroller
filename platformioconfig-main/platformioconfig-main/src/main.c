@@ -1,13 +1,20 @@
-#define F_CPU 8000000UL
-#include <avr/io.h>
-#include "avhal/DIGITALIO.h"
+#include "avrhal/ugly-usart.h"
+#include <avr/interrupt.h>
+#include <util/delay.h>
 
-int main()
+#define LOOP_DELAY_MS 500
+
+int main(void)
 {
-  // UCSRA Registerwert auf LEDs ausgeben
-  IO_OutputRegisterToLEDs(UCSRA);
+    usartSetup(9600);
+    uint8_t message[] = "Wir Brauchen diese Serielle Schnittstelle das nächste mal auch noch.\n\r";
+    sei();
+    while (1) {
+        _delay_ms(LOOP_DELAY_MS); 
+        usartWriteString(message, strlen((char*)message));
+    }
 
-  while(1)
-  {
-  }
+
+
+    return 0;
 }
