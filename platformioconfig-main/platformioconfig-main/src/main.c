@@ -1,32 +1,40 @@
-#include "avrhal/ugly-usart.h"
+#include "avrhal/adc.h"
+#include "avrhal/usart.h"
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include <string.h>
+#include <stdio.h>
 
-#define LOOP_DELAY_MS 500
+#define BUFFER_SIZE 255
+#define LOOP_DELAY_MS 100
 
 int main(void)
 {
-    usartSetup(9600);
-    uint8_t laborUebung = 3;
-    uint8_t message[255];
+    usartSetup(USART_B9600, USART_CONFIG_8N1);
+    adcSetup();
+    adcSetupFreeRunning();
 
-    char * cow_string = 
-    "  ^__^\n\r"
-    "  (oo)\\_______\n\r"
-    "  (__)\\       )\\/\\\n\r"
-    "      ||----w |\n\r"
-    "      ||     ||\n\r";
+    char message[BUFFER_SIZE];
 
-    snprintf(message, 255, "%s", cow_string);
+    const char *cow_string =
+        "  ^__^\r\n"
+        "  (oo)\\_______\r\n"
+        "  (__)\\       )\\/\\\r\n"
+        "      ||----w |\r\n"
+        "      ||     ||\r\n";
 
-    sei();
+    usartWriteString(cow_string);
+
+    sei();    
     while (1) {
-        _delay_ms(LOOP_DELAY_MS); 
-        usartWriteString(message, strlen((char*)message));
+
+        adcSetChannel(0);
+        uint16_t adcX = adcRead();
+
+        adcSetChannel(1);
+        uint16_t adcY = adcRead();
+
+        snprintf(message, BUFFER_SIZE, "ADC x:%4d y:%4d\r\n", adcX, adcY);
+        usartWriteString(message);
+        _delay_ms(LOOP_DELAY_MS);
     }
-
-
-
-    return 0;
 }
